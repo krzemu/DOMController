@@ -11,10 +11,9 @@ class DOMController {
     }
 
     // Setters
-    createElement({ key, id, type = 'div', style, classList, textContent, innerHTML, props, appendChild, prepend, beforeMountCallback, afterMountCallback, layoutMountCallback }) {
+    createElement({ key, id, type = 'div', style, onClick, classList, textContent, innerHTML, props, appendChild, prepend, beforeMountCallback, afterMountCallback, layoutMountCallback }) {
         const { keyRequired, layoutMountDelay, autoKey } = this;
         const el = document.createElement(type);
-
         if (id) el.id = id;
 
         keyRequired && !autoKey && this.#validateKey(key);
@@ -35,6 +34,7 @@ class DOMController {
                 el.setAttribute(k, props[k]);
             }
         }
+        onClick && el.addEventListener('click', onClick);
 
         if (textContent) el.textContent = textContent;
         if (innerHTML) el.innerHTML = innerHTML;
@@ -45,7 +45,7 @@ class DOMController {
         prepend && prepend.prepend(el);
 
         afterMountCallback && afterMountCallback(el);
-        layoutMountCallback && setTimeout(() => layoutMountCallback(el), layoutMountDelay);
+        layoutMountCallback && window.requestAnimationFrame(() => layoutMountCallback(el));
 
         return el;
     }
@@ -53,14 +53,15 @@ class DOMController {
     createTemplate({ key, template = [], container, getSelectors, beforeMountCallback, afterMountCallback, layoutMountCallback }) {
         const { keyRequired, autoKey } = this;
         beforeMountCallback?.(template, container);
+
         this.#attachElementsToTemplate(template, container);
+
         keyRequired && !autoKey && this.#validateKey(key);
-        const selectors = getSelectors(container);
+        const selectors = getSelectors?.(container);
         afterMountCallback?.(selectors, template, container)
         if (typeof layoutMountCallback === 'function') {
-            setTimeout(() => {
-                layoutMountCallback(selectors, template, container);
-            }, this.layoutMountDelay)
+            window.requestAnimationFrame(layoutMountCallback(selectors, template, container))
+
         }
 
         this.#addTemplateToTemplateList(key, container, selectors)
@@ -78,7 +79,7 @@ class DOMController {
         prepend && prepend.prepend(template);
         afterMountCallback?.(template);
         if (typeof layoutMountCallback === 'function') {
-            setTimeout(() => layoutMountCallback(template), this.layoutMountDelay);
+            window.requestAnimationFrame(() => layoutMountCallback(template))
         }
     }
 
@@ -108,13 +109,11 @@ class DOMController {
             prepend && prepend.prepend(item);
             appendChild && appendChild.appendChild(item);
             afterItemMountCallback && afterItemMountCallback(item, i)
-            setTimeout(() => layoutItemMountCallback(item, i), this.layoutMountDelay);
+            layoutItemMountCallback && window.requestAnimationFrame(() => layoutItemMountCallback(item, i));
         })
 
         afterMountCallback && afterMountCallback(nodeList);
-        setTimeout(() => {
-            layoutMountCallback && layoutMountCallback(nodeList);
-        }, this.layoutMountDelay);
+        layoutMountCallback && window.requestAnimationFrame(layoutMountCallback);
     }
 
     unMountElements(beforeMountCallback, afterMountCallback, layoutMountCallback, beforeItemMountCallback, afterItemMountCallback, layoutItemMountCallback) {
@@ -125,13 +124,11 @@ class DOMController {
             beforeItemMountCallback && beforeItemMountCallback(item, i)
             item.remove();
             afterItemMountCallback && afterItemMountCallback(item, i)
-            typeof layoutItemMountCallback === 'function' && setTimeout(() => layoutItemMountCallback(item, i), this.layoutMountDelay);
+            typeof layoutItemMountCallback === 'function' && window.requestAnimationFrame(layoutItemMountCallback(item, i));
         })
 
         afterMountCallback && afterMountCallback(nodeList);
-        setTimeout(() => {
-            layoutMountCallback && layoutMountCallback(nodeList);
-        }, this.layoutMountDelay);
+        layoutMountCallback && window.requestAnimationFrame(layoutMountCallback(nodeList));
     }
 
     // Getters
@@ -149,6 +146,7 @@ class DOMController {
         } else {
             for (let k in nodeList) {
                 if (nodeList[k].id === id) el = nodeList[k];
+                break;
             }
         }
         if (!el) { this.#error(`Element with id ${id} doesn't exist`); return false; };
@@ -196,7 +194,7 @@ class DOMController {
     #addElToNodeList(key, el, validateKey = false) {
         if (validateKey && this.#validateKey(key)) return false;
         if (this.keyRequired === true) {
-            if (this.autoKey) {
+            if (this.autoKey && !key) {
                 this.nodeList[`${this.autoKeyPrefix}-${this.#nodeLength}`] = el;
                 this.#nodeLength += 1;
             } else {
@@ -209,7 +207,7 @@ class DOMController {
     #addTemplateToTemplateList(key, el, selectors, validateKey = false) {
         if (validateKey && this.#validateKey(key)) return false;
         if (this.keyRequired === true) {
-            if (this.autoKey) {
+            if (this.autoKey && !key) {
                 this.templateList[`${this.autoKeyPrefix}-${this.#templateLength}`] = { container: el, selectors };
                 this.#templateLength += 1;
             } else {
