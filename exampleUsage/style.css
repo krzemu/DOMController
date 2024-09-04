@@ -1,0 +1,119 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: black;
+  color: #fff;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  max-width: 800px;
+  margin-inline: auto;
+  flex-wrap: wrap;
+  gap: 1rem;
+  overflow: hidden;
+}
+.box {
+  width: max-content;
+  border: 1px solid #fff;
+  padding: 4rem;
+
+  transition: 0.5s ease-out;
+}
+
+h1 {
+  transition: 0.5s ease-out;
+}
+h2 {
+  transition: 0.5s ease-out 0.5s;
+}
+
+ul#menu {
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 2rem 4rem;
+  border: 1px solid #ffffff60;
+  border-radius: 1rem;
+}
+
+ul#menu li {
+  cursor: pointer;
+  transition: 0.3s ease-out;
+}
+ul#menu li:hover {
+  color: #ffffffcc;
+}
+
+.modal {
+  background-color: #00000011;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 1rem;
+  border: 1px solid #ffffff77;
+  width: max-content;
+  height: max-content;
+  padding: 4rem;
+  max-width: 768px;
+  transition: 0.3s ease-out;
+}
+.modal_inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  position: relative;
+}
+.modal_close {
+  position: absolute;
+  top: -1rem;
+  right: -1rem;
+  cursor: pointer;
+}
+
+.modal * {
+  margin: 0;
+}
+
+button.button.button--primary {
+  background-color: #000;
+  border: 1px solid #ffffff77;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: 0.3s ease-out;
+}
+button.button.button--primary:hover {
+  border: 1px solid #fff;
+}
+
+.timer {
+  background-color: #00000011;
+  border-radius: 1rem;
+  border: 1px solid #ffffff77;
+  width: max-content;
+  height: max-content;
+  padding: 4rem;
+  max-width: 768px;
+  transition: 0.3s ease-out;
+  text-align: center;
+}
